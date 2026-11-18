@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Design Pro - Tính Toán Điện Dân Dụng</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060608;
+            --surface-color: #0d0d12;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(12px);
+            --accent-color: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .room-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .room-card {
+            padding: 2rem;
+            transition: var(--transition-fast);
+            position: relative;
+        }
+
+        .room-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .room-title-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-family: 'Outfit';
+            outline: none;
+            border-bottom: 1px solid transparent;
+            transition: border 0.3s;
+            width: 100%;
+        }
+
+        .room-title-input:focus {
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        .device-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            transition: var(--transition-fast);
+            border: 1px solid transparent;
+        }
+
+        .device-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--glass-border);
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .device-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            color: var(--accent-color);
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-qty {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .btn-qty:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-add-room {
+            width: 100%;
+            padding: 1.5rem;
+            border: 2px dashed var(--glass-border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn-add-room:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .results-card {
+            padding: 2.5rem;
+        }
+
+        .result-item {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .result-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            font-family: 'Outfit';
+            color: var(--accent-color);
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .result-unit {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .device-picker {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .btn-pick {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-pick:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-pick .pick-icon {
+            font-size: 1.25rem;
+        }
+
+        .warning-box {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #fbbf24;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .remove-btn {
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition-fast);
+        }
+
+        .remove-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .tab-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Outfit';
+            font-weight: 500;
+            white-space: nowrap;
+            transition: var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tab-btn-add {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px dashed var(--text-secondary);
+            color: var(--text-secondary);
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 2rem;
+            width: fit-content;
+        }
+
+        .view-toggle-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Outfit';
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .config-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.3s ease-out;
+        }
+
+        .config-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .config-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .config-group p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .config-group input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        const DEFAULT_DEVICES = [
+            { id: 'light', name: 'Đèn LED', power: 20, categoryId: 'electronic' },
+            { id: 'fan', name: 'Quạt trần', power: 75, categoryId: 'motor' },
+            { id: 'tv', name: 'Smart TV', power: 150, categoryId: 'electronic' },
+            { id: 'fridge', name: 'Tủ lạnh', power: 250, categoryId: 'motor' },
+            { id: 'ac', name: 'Điều hòa', power: 900, categoryId: 'motor' },
+            { id: 'water_heater', name: 'Bình nóng lạnh', power: 2500, categoryId: 'resistive' },
+            { id: 'cooker', name: 'Bếp từ', power: 3000, categoryId: 'electronic' },
+            { id: 'washing', name: 'Máy giặt', power: 500, categoryId: 'motor' },
+            { id: 'kettle', name: 'Ấm siêu tốc', power: 2000, categoryId: 'resistive' }
+        ];
+
+        const MCB_RATINGS = [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100];
+
+        function App() {
+            const [viewMode, setViewMode] = useState('design'); // 'design' | 'config'
+            const [config, setConfig] = useState({
+                voltage: 220,
+                safetyFactor: 1.25,
+                demandFactor: 0.8
+            });
+
+            const [deviceCategories, setDeviceCategories] = useState([
+                { id: 'resistive', name: 'Thuần trở', cosPhi: 1.0, icon: '🔥' },
+                { id: 'electronic', name: 'Điện tử', cosPhi: 0.9, icon: '💻' },
+                { id: 'motor', name: 'Động cơ', cosPhi: 0.8, icon: '⚙️' }
+            ]);
+
+            const [availableDevices, setAvailableDevices] = useState(DEFAULT_DEVICES);
+            const [rooms, setRooms] = useState([
+                { id: '1', name: 'Phòng khách', devices: [{ deviceId: 'light', quantity: 4 }, { deviceId: 'ac', quantity: 1 }] }
+            ]);
+            const [activeRoomId, setActiveRoomId] = useState('1');
+            const [deviceEditModal, setDeviceEditModal] = useState({ isOpen: false, id: null, name: '', power: '', categoryId: 'resistive' });
+            const [categoryEditModal, setCategoryEditModal] = useState({ isOpen: false, id: null, name: '', cosPhi: 1.0, icon: '⚡' });
+
+            const addRoom = () => {
+                const newId = Date.now().toString();
+                setRooms([...rooms, { id: newId, name: `Phòng mới ${rooms.length + 1}`, devices: [] }]);
+                setActiveRoomId(newId);
+            };
+
+            const removeRoom = (id) => {
+                const newRooms = rooms.filter(r => r.id !== id);
+                setRooms(newRooms);
+                if (activeRoomId === id && newRooms.length > 0) {
+                    setActiveRoomId(newRooms[0].id);
+                } else if (newRooms.length === 0) {
+                    // Always have at least 1 room
+                    const newId = Date.now().toString();
+                    setRooms([{ id: newId, name: 'Phòng khách', devices: [] }]);
+                    setActiveRoomId(newId);
+                }
+            };
+
+            const updateRoomName = (id, name) => {
+                setRooms(rooms.map(r => r.id === id ? { ...r, name } : r));
+            };
+
+            const addDeviceToRoom = (roomId, deviceId) => {
+                setRooms(rooms.map(r => {
+                    if (r.id === roomId) {
+                        const existing = r.devices.find(d => d.deviceId === deviceId);
+                        if (existing) {
+                            return {
+                                ...r,
+                                devices: r.devices.map(d => d.deviceId === deviceId ? { ...d, quantity: d.quantity + 1 } : d)
+                            };
+                        }
+                        return { ...r, devices: [...r.devices, { deviceId, quantity: 1 }] };
+                    }
+                    return r;
+                }));
+            };
+
+            const updateQuantity = (roomId, deviceId, delta) => {
+                setRooms(rooms.map(r => {
+                    if (r.id === roomId) {
+                        return {
+                            ...r,
+                            devices: r.devices.map(d => {
+                                if (d.deviceId === deviceId) {
+                                    return { ...d, quantity: Math.max(0, d.quantity + delta) };
+                                }
+                                return d;
+                            }).filter(d => d.quantity > 0)
+                        };
+                    }
+                    return r;
+                }));
+            };
+
+            const saveDevice = () => {
+                if (!deviceEditModal.name || !deviceEditModal.power || !deviceEditModal.categoryId) return;
+
+                if (deviceEditModal.id) {
+                    // Edit existing
+                    setAvailableDevices(availableDevices.map(d =>
+                        d.id === deviceEditModal.id
+                            ? { ...d, name: deviceEditModal.name, power: Number(deviceEditModal.power), categoryId: deviceEditModal.categoryId }
+                            : d
+                    ));
+                } else {
+                    // Add new
+                    const newId = `custom_${Date.now()}`;
+                    setAvailableDevices([...availableDevices, {
+                        id: newId,
+                        name: deviceEditModal.name,
+                        power: Number(deviceEditModal.power),
+                        categoryId: deviceEditModal.categoryId
+                    }]);
+                }
+                setDeviceEditModal({ isOpen: false, id: null, name: '', power: '', categoryId: 'resistive' });
+            };
+
+            const saveCategory = () => {
+                if (!categoryEditModal.name || !categoryEditModal.cosPhi || !categoryEditModal.icon) return;
+
+                if (categoryEditModal.id) {
+                    setDeviceCategories(deviceCategories.map(c =>
+                        c.id === categoryEditModal.id
+                            ? { ...c, name: categoryEditModal.name, cosPhi: Number(categoryEditModal.cosPhi), icon: categoryEditModal.icon }
+                            : c
+                    ));
+                } else {
+                    const newId = `cat_${Date.now()}`;
+                    setDeviceCategories([...deviceCategories, {
+                        id: newId,
+                        name: categoryEditModal.name,
+                        cosPhi: Number(categoryEditModal.cosPhi),
+                        icon: categoryEditModal.icon
+                    }]);
+                }
+                setCategoryEditModal({ isOpen: false, id: null, name: '', cosPhi: 1.0, icon: '⚡' });
+            };
+
+            const removeCategory = (id) => {
+                if (deviceCategories.length <= 1) return; // Prevent deleting all categories
+                setDeviceCategories(deviceCategories.filter(c => c.id !== id));
+            };
+
+            const calculateParamsForCurrent = (power, current) => {
+                const { voltage, safetyFactor } = config;
+                const targetMCB = current * safetyFactor;
+                const mcb = MCB_RATINGS.find(r => r >= targetMCB) || 125;
+
+                let wireSize = 1.5;
+                if (mcb <= 10) wireSize = 1.5;
+                else if (mcb <= 16) wireSize = 2.5;
+                else if (mcb <= 25) wireSize = 4.0;
+                else if (mcb <= 40) wireSize = 6.0;
+                else if (mcb <= 63) wireSize = 10.0;
+                else wireSize = 16.0;
+
+                return { current, mcb, wireSize };
+            };
+
+            const results = useMemo(() => {
+                let totalPower = 0;
+                let totalCurrent = 0;
+                const roomResults = {};
+
+                rooms.forEach(room => {
+                    let roomPower = 0;
+                    let roomCurrent = 0;
+                    room.devices.forEach(d => {
+                        const base = availableDevices.find(cd => cd.id === d.deviceId);
+                        if (base) {
+                            const cat = deviceCategories.find(c => c.id === base.categoryId) || deviceCategories[0];
+                            const p = base.power * d.quantity;
+                            roomPower += p;
+                            roomCurrent += p / (config.voltage * cat.cosPhi);
+                        }
+                    });
+                    totalPower += roomPower;
+                    totalCurrent += roomCurrent;
+                    roomResults[room.id] = { power: roomPower, ...calculateParamsForCurrent(roomPower, roomCurrent) };
+                });
+
+                const globalDemand = config.demandFactor || 1;
+                return {
+                    totalPower: totalPower * globalDemand,
+                    ...calculateParamsForCurrent(totalPower * globalDemand, totalCurrent * globalDemand),
+                    roomResults
+                };
+            }, [rooms, availableDevices, config, deviceCategories]);
+
+            const activeRoom = rooms.find(r => r.id === activeRoomId) || rooms[0];
+            const activeRoomRes = results.roomResults[activeRoom.id] || calculateParamsForCurrent(0, 0);
+
+            const renderConfigOverlay = () => {
+                return (
+                    <div className="config-card">
+                        <h2 style={{ marginBottom: '1.5rem', color: 'var(--accent-color)' }}>Cấu hình thông số hệ thống</h2>
+                        <div className="config-group">
+                            <label>Điện áp (V)</label>
+                            <p>Điện áp định mức của hệ thống điện một pha (thường là 220V).</p>
+                            <input
+                                type="number"
+                                value={config.voltage}
+                                onChange={(e) => setConfig({ ...config, voltage: Number(e.target.value) })}
+                            />
+                        </div>
+                        <div className="config-group">
+                            <label>Hệ số an toàn Aptomat (k)</label>
+                            <p>Dòng điện bảo vệ của Aptomat thường lớn hơn dòng tính toán từ 1.25 đến 1.5 lần.</p>
+                            <input
+                                type="number"
+                                step="0.01"
+                                value={config.safetyFactor}
+                                onChange={(e) => setConfig({ ...config, safetyFactor: Number(e.target.value) })}
+                            />
+                        </div>
+                        <div className="config-group">
+                            <label>Hệ số đồng thời (Kđt)</label>
+                            <p>Tỉ lệ công suất sử dụng thực tế đồng thời so với tổng công suất thiết kế (thường 0.6 - 0.8).</p>
+                            <input
+                                type="number"
+                                step="0.01"
+                                value={config.demandFactor}
+                                onChange={(e) => setConfig({ ...config, demandFactor: Number(e.target.value) })}
+                            />
+                        </div>
+
+                        <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ color: 'var(--accent-color)' }}>Quản lý nhóm thiết bị & cos(φ)</h3>
+                                <button
+                                    onClick={() => setCategoryEditModal({ isOpen: true, id: null, name: '', cosPhi: 1.0, icon: '⚡' })}
+                                    style={{ background: 'transparent', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}
+                                >
+                                    + Thêm nhóm
+                                </button>
+                            </div>
+
+                            <div style={{ display: 'grid', gap: '1rem' }}>
+                                {deviceCategories.map(cat => (
+                                    <div key={cat.id} className="device-row" style={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.02)' }}>
+                                        <div className="device-info">
+                                            <div className="device-icon">{cat.icon}</div>
+                                            <div>
+                                                <div style={{ fontWeight: 600 }}>{cat.name}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>cos φ: {cat.cosPhi}</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                className="icon-btn"
+                                                onClick={() => setCategoryEditModal({ isOpen: true, id: cat.id, name: cat.name, cosPhi: String(cat.cosPhi), icon: cat.icon })}
+                                                title="Sửa"
+                                            >✏️</button>
+                                            <button
+                                                className="icon-btn"
+                                                onClick={() => removeCategory(cat.id)}
+                                                style={{ color: '#ef4444' }}
+                                                title="Xóa"
+                                            >🗑️</button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+            return (
+                <div className="container">
+                    {categoryEditModal.isOpen && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                            <div className="glass" style={{ padding: '2rem', width: '400px', maxWidth: '90%' }}>
+                                <h3 style={{ marginBottom: '1.5rem' }}>{categoryEditModal.id ? 'Sửa nhóm thiết bị' : 'Thêm nhóm thiết bị mới'}</h3>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Icon (Emoji)</label>
+                                    <input
+                                        type="text"
+                                        value={categoryEditModal.icon}
+                                        onChange={e => setCategoryEditModal({ ...categoryEditModal, icon: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Tên nhóm</label>
+                                    <input
+                                        type="text"
+                                        value={categoryEditModal.name}
+                                        onChange={e => setCategoryEditModal({ ...categoryEditModal, name: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                        placeholder="Ví dụ: Động cơ"
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Hệ số công suất (cos φ)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={categoryEditModal.cosPhi}
+                                        onChange={e => setCategoryEditModal({ ...categoryEditModal, cosPhi: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                        placeholder="Ví dụ: 0.8"
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                    <button
+                                        onClick={() => setCategoryEditModal({ isOpen: false, id: null, name: '', cosPhi: 1.0, icon: '⚡' })}
+                                        style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', cursor: 'pointer' }}
+                                    >Hủy</button>
+                                    <button
+                                        onClick={saveCategory}
+                                        style={{ padding: '0.5rem 1rem', background: 'var(--accent-color)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                                    >Lưu lại</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {deviceEditModal.isOpen && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                            <div className="glass" style={{ padding: '2rem', width: '400px', maxWidth: '90%' }}>
+                                <h3 style={{ marginBottom: '1.5rem' }}>{deviceEditModal.id ? 'Sửa thiết bị' : 'Thêm thiết bị mới'}</h3>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Nhóm thiết bị</label>
+                                    <select
+                                        value={deviceEditModal.categoryId}
+                                        onChange={e => setDeviceEditModal({ ...deviceEditModal, categoryId: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                    >
+                                        {deviceCategories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.icon} {cat.name} (cos φ: {cat.cosPhi})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Tên thiết bị</label>
+                                    <input
+                                        type="text"
+                                        value={deviceEditModal.name}
+                                        onChange={e => setDeviceEditModal({ ...deviceEditModal, name: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                        placeholder="Ví dụ: Máy bơm nước"
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Công suất (W)</label>
+                                    <input
+                                        type="number"
+                                        value={deviceEditModal.power}
+                                        onChange={e => setDeviceEditModal({ ...deviceEditModal, power: e.target.value })}
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                                        placeholder="Ví dụ: 1500"
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                    <button
+                                        onClick={() => setDeviceEditModal({ isOpen: false, id: null, name: '', power: '', categoryId: deviceCategories[0]?.id || 'resistive' })}
+                                        style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', cursor: 'pointer' }}
+                                    >Hủy</button>
+                                    <button
+                                        onClick={saveDevice}
+                                        style={{ padding: '0.5rem 1rem', background: 'var(--accent-color)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                                    >Lưu lại</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <header className="header" style={{ marginBottom: '2rem' }}>
+                        <h1>ElectricPro Design</h1>
+                        <p>Tính toán hệ thống điện dân dụng thông minh, dễ dàng chia sẻ thiết bị giữa các phòng.</p>
+                    </header>
+
+                    <div className="view-toggle">
+                        <button
+                            className={`view-toggle-btn ${viewMode === 'design' ? 'active' : ''}`}
+                            onClick={() => setViewMode('design')}
+                        >
+                            Thiết kế
+                        </button>
+                        <button
+                            className={`view-toggle-btn ${viewMode === 'config' ? 'active' : ''}`}
+                            onClick={() => setViewMode('config')}
+                        >
+                            Cấu hình
+                        </button>
+                    </div>
+
+                    <div className="app-grid">
+                        <div className="main-content">
+                            {viewMode === 'config' ? renderConfigOverlay() : (
+                                <div className="design-view">
+                                    {/* Tabs Navigation */}
+                                    <div className="tab-nav">
+                                        {rooms.map(room => (
+                                            <button
+                                                key={room.id}
+                                                className={`tab-btn ${activeRoomId === room.id ? 'active' : ''}`}
+                                                onClick={() => setActiveRoomId(room.id)}
+                                            >
+                                                {room.name}
+                                            </button>
+                                        ))}
+                                        <button className="tab-btn-add" onClick={addRoom}>+ Thêm phòng</button>
+                                    </div>
+
+                                    {/* Active Room Content */}
+                                    <div className="room-card glass" style={{ animation: 'fadeInDown 0.3s ease-out' }}>
+                                        <div className="room-header">
+                                            <input
+                                                className="room-title-input"
+                                                value={activeRoom.name}
+                                                onChange={(e) => updateRoomName(activeRoom.id, e.target.value)}
+                                            />
+                                            <button className="remove-btn" onClick={() => removeRoom(activeRoom.id)}>Xóa phòng</button>
+                                        </div>
+
+                                        {/* Per-room calculation results */}
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                                            <div style={{ flex: '1 1 auto', minWidth: '100px' }}>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Tổng nhánh</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--accent-color)', fontSize: '1.2rem' }}>{(activeRoomRes.power / 1000).toFixed(2)} kW</div>
+                                            </div>
+                                            <div style={{ flex: '1 1 auto', minWidth: '100px' }}>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Aptomat nhánh</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>{activeRoomRes.mcb} A</div>
+                                            </div>
+                                            <div style={{ flex: '1 1 auto', minWidth: '100px' }}>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Dây nhánh</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>{activeRoomRes.wireSize} mm²</div>
+                                            </div>
+                                        </div>
+
+                                        {activeRoom.devices.length === 0 && (
+                                            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', margin: '2rem 0', fontSize: '0.9rem' }}>Chưa thêm thiết bị nào vào phòng này.</p>
+                                        )}
+
+                                        {activeRoom.devices.map((d, index) => {
+                                            const deviceData = availableDevices.find(cd => cd.id === d.deviceId) || { name: 'Thiết bị đã xóa', power: 0, categoryId: null };
+                                            const cat = deviceCategories.find(c => c.id === deviceData.categoryId) || { icon: '❓' };
+                                            return (
+                                                <div key={`${d.deviceId}-${index}`} className="device-row">
+                                                    <div className="device-info">
+                                                        <div className="device-icon">{cat.icon}</div>
+                                                        <div>
+                                                            <div style={{ fontWeight: 600 }}>
+                                                                {deviceData.name}
+                                                                <button
+                                                                    onClick={() => setDeviceEditModal({ isOpen: true, id: d.deviceId, name: deviceData.name, power: String(deviceData.power), categoryId: deviceData.categoryId })}
+                                                                    className="icon-btn" style={{ marginLeft: '4px', fontSize: '0.8rem' }} title="Sửa thiết bị">
+                                                                    ✏️
+                                                                </button>
+                                                            </div>
+                                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{deviceData.power}W / thiết bị</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="qty-controls">
+                                                        <button className="btn-qty" onClick={() => updateQuantity(activeRoom.id, d.deviceId, -1)}>-</button>
+                                                        <span style={{ minWidth: '20px', textAlign: 'center' }}>{d.quantity}</span>
+                                                        <button className="btn-qty" onClick={() => updateQuantity(activeRoom.id, d.deviceId, 1)}>+</button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                                <h4 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Thư viện thiết bị</h4>
+                                                <button
+                                                    onClick={() => setDeviceEditModal({ isOpen: true, id: null, name: '', power: '', categoryId: deviceCategories[0]?.id || 'resistive' })}
+                                                    style={{ background: 'transparent', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.3rem 0.8rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+                                                >
+                                                    + Tạo mới
+                                                </button>
+                                            </div>
+
+                                            <div className="device-picker" style={{ marginTop: 0 }}>
+                                                {availableDevices.map(cd => {
+                                                    const cat = deviceCategories.find(c => c.id === cd.categoryId) || { icon: '❓' };
+                                                    return (
+                                                        <div key={cd.id} style={{ position: 'relative' }}>
+                                                            <button className="btn-pick" style={{ width: '100%', height: '100%' }} onClick={() => addDeviceToRoom(activeRoom.id, cd.id)}>
+                                                                <span className="pick-icon">{cat.icon}</span>
+                                                                <span style={{ textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', whiteSpace: 'nowrap' }}>{cd.name}</span>
+                                                            </button>
+                                                            <button
+                                                                className="icon-btn"
+                                                                onClick={(e) => { e.stopPropagation(); setDeviceEditModal({ isOpen: true, id: cd.id, name: cd.name, power: String(cd.power), categoryId: cd.categoryId }); }}
+                                                                style={{ position: 'absolute', top: 2, right: 2, padding: 2, fontSize: '0.6rem', opacity: 0.6 }}
+                                                                title="Sửa"
+                                                            >
+                                                                ✏️
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="sidebar">
+                            <div className="results-card glass">
+                                <h2 style={{ marginBottom: '2rem', fontSize: '1.5rem' }}>Tổng Toàn Nhà</h2>
+
+                                <div className="result-item">
+                                    <span className="result-label">Tổng công suất</span>
+                                    <div className="result-value">
+                                        {(results.totalPower / 1000).toFixed(2)}
+                                        <span className="result-unit">kW</span>
+                                    </div>
+                                </div>
+
+                                <div className="result-item">
+                                    <span className="result-label">Dòng điện tổng (I<sub>k</sub>)</span>
+                                    <div className="result-value">
+                                        {results.current.toFixed(1)}
+                                        <span className="result-unit">Ampe</span>
+                                    </div>
+                                </div>
+
+                                <div className="result-item">
+                                    <span className="result-label">Aptomat tổng (MCB/MCCB)</span>
+                                    <div className="result-value">
+                                        {results.mcb}
+                                        <span className="result-unit">A</span>
+                                    </div>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Kích thước tiêu chuẩn phù hợp tổng tải.</p>
+                                </div>
+
+                                <div className="result-item">
+                                    <span className="result-label">Cáp nguồn tổng (Cu/PVC)</span>
+                                    <div className="result-value">
+                                        {results.wireSize.toFixed(1)}
+                                        <span className="result-unit">mm²</span>
+                                    </div>
+                                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Tiết diện cáp đồng nguồn vào nhà đi trong ống.</p>
+                                </div>
+
+                                <div className="warning-box">
+                                    <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <p style={{ marginBottom: 0 }}>Thông số mang tính tham khảo (TCVN).</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--glass-border)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                        <p>&copy; 2024 Electrical Design Pro.</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
